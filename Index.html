@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ECOllaboration PlatyTracker</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --accent:#0077cc;
+    --sidebar-width:320px;
+    --collapsed-left:8px;
+    --collapsed-width:0px;
+    --bg:#ffffff;
+    --muted:#6b7280;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:"Poppins",sans-serif;
+    color:#222;
+    background:#f7f8fa;
+  }
+
+  
+  .app {
+    display:flex;
+    height:100vh;
+    width:100vw;
+    overflow:hidden;
+  }
+
+  
+  #sidebar {
+    width:var(--sidebar-width);
+    min-width:var(--sidebar-width);
+    background:var(--bg);
+    box-shadow:2px 0 12px rgba(15,23,42,0.08);
+    z-index:2200;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    transition: width 300ms ease, padding 300ms ease, opacity 300ms ease;
+    overflow:hidden;
+  }
+
+  
+  #sidebar.collapsed {
+    width: var(--collapsed-width);
+    min-width: var(--collapsed-width);
+    padding: 0;
+    opacity: 0;
+    box-shadow: none;
+  }
+
+  
+  .sidebar-top-image {
+    width:100%;
+    height:140px;
+    background-size:cover;
+    background-position:center;
+    display:block;
+  }
+
+  .sidebar-header {
+    padding:12px 12px;
+    border-bottom:1px solid rgba(15,23,42,0.04);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    position:relative;
+  }
+  .sidebar-header .title {
+    font-size:18px;
+    font-weight:700;
+    color:#0b3a57;
+  }
+  .sidebar-header .subtitle {
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  
+  .tabs {
+    display:flex;
+    gap:6px;
+    padding:10px 12px;
+    border-bottom:1px solid rgba(15,23,42,0.03);
+  }
+  .tab-btn {
+    flex:1;
+    text-align:center;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13px;
+    color:#333;
+    background:transparent;
+    border:1px solid transparent;
+  }
+  .tab-btn.active {
+    background:var(--accent);
+    color:#fff;
+    border-color:rgba(0,0,0,0.04);
+  }
+
+  .tab-content {
+    padding:12px 14px;
+    overflow:auto;
+    flex:1;
+  }
+
+  .links-list a {
+    display:block;
+    color:var(--accent);
+    text-decoration:none;
+    margin:8px 0;
+    font-size:14px;
+  }
+
+  .controls {
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px dashed rgba(15,23,42,0.03);
+  }
+
+  .control-row {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:10px 0;
+  }
+
+  .control-row label {
+    font-size:14px;
+    color:#222;
+  }
+
+  
+  #map {
+    flex:1;
+    position:relative;
+    transition: margin-left 300ms ease;
+  }
+
+  
+  #introModal {
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(2,6,23,0.55);
+    z-index:3500;
+  }
+  #introCard {
+    width:92%;
+    max-width:760px;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 18px 50px rgba(2,6,23,0.35);
+    overflow:hidden;
+    position:relative;
+  }
+
+  
+  #introCard .close {
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:rgba(255,255,255,0.95);
+    border:0;
+    font-size:20px;
+    width:40px;
+    height:40px;
+    border-radius:8px;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(2,6,23,0.12);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+  }
+
+  
+  .intro-media {
+    display:flex;
+    gap:8px;
+    padding:14px;
+    box-sizing:border-box;
+  }
+  .intro-media img {
+    width:50%;
+    height:220px;
+    object-fit:cover;
+    border-radius:8px;
+    display:block;
+  }
+
+  .intro-body {
+    padding:14px 18px 20px 18px;
+  }
+  .intro-body h2 {
+    margin:0 0 8px 0;
+    font-size:20px;
+  }
+  .intro-body p {
+    margin:0 0 10px 0;
+    color:var(--muted);
+    line-height:1.45;
+  }
+
+  
+  .leaflet-bottom.leaflet-right .legend {
+    margin-right:12px;
+    margin-bottom:12px;
+  }
+  .legend {
+    background:#fff;
+    padding:10px 12px;
+    border-radius:8px;
+    box-shadow:0 8px 22px rgba(2,6,23,0.12);
+    font-size:13px;
+    color:#222;
+    min-width:180px;
+  }
+  .legend-title {
+    font-weight:700;
+    margin-bottom:8px;
+    font-size:13px;
+  }
+  .legend-row {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:6px 0;
+  }
+  .legend-swatch {
+    width:18px;
+    height:18px;
+    border-radius:4px;
+    border:2px solid rgba(0,0,0,0.85);
+    flex:0 0 18px;
+  }
+
+  
+  .leaflet-popup-content-wrapper {
+    font-family:"Poppins",sans-serif;
+    font-size:14px;
+  }
+  .leaflet-popup-content b { color:#0b3a57; }
+
+  
+  #collapseBtn {
+    position:fixed;
+    left: var(--collapsed-left);
+    top: 12px;
+    z-index:4000;
+    width:36px;
+    height:36px;
+    border-radius:8px;
+    border:0;
+    background:rgba(255,255,255,0.95);
+    box-shadow:0 6px 18px rgba(2,6,23,0.12);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    transition: left 300ms ease, transform 160ms ease;
+  }
+  #collapseBtn.expanded {
+    
+  }
+  #collapseBtn:hover { transform: scale(1.04); }
+
+ 
+  #sidebar.collapsed .tabs,
+  #sidebar.collapsed .tab-content,
+  #sidebar.collapsed .sidebar-header .subtitle,
+  #sidebar.collapsed .sidebar-header .title {
+    display: none;
+  }
+
+  @media (max-width:900px){
+    #sidebar { width:260px; min-width:260px; }
+    .intro-media img { height:160px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" aria-label="Sidebar">
+
+     
+    <div class="sidebar-top-image" id="sidebarTopImage"
+         style="background-image:url('https://raw.githubusercontent.com/Ethann-5/Frog_Map_Assets/main/Images/Logos/ECO_Logo.jpg" style="height:60px; margin-bottom:10px;');">
+    </div>
+
+
+    <div class="sidebar-header">
+      <div>
+        <div class="title">PlatyTracker Map</div>
+        <div class="subtitle"></div>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="about" role="tab" aria-selected="true">About</button>
+      <button class="tab-btn" data-tab="links" role="tab" aria-selected="false">Links</button>
+      <button class="tab-btn" data-tab="controls" role="tab" aria-selected="false">Controls</button>
+    </div>
+
+    <div class="tab-content" id="about" data-tabcontent>
+      <h3 style="margin-top:0">About</h3>
+      <p style="color:var(--muted);font-size:14px">
+        PlatyTracker aims to better understand the distribution and quantity of platypus within the Sunshine coast region, built off of the work of many volunteers who spend their free time surveying sites along critical waterways. 
+      </p>
+      <p style="color:var(--muted);font-size:14px">
+        This information assists with ongoing conservation efforts within the region
+      </p>
+    </div>
+
+    <div class="tab-content" id="links" data-tabcontent style="display:none">
+      <h3 style="margin-top:0">Useful links</h3>
+      <div class="links-list">
+        <a href="https://www.ecollaboration.org.au" target="_blank" rel="noopener">ECOllaboration</a>
+        <a href="https://ethann-5.github.io/Frog-Survey-Map/" target="_blank" rel="noopener">Frog Survey Map</a>
+        <a href="https://watergum.org/platypuswatch/" target="_blank" rel="noopener">Watergum PlatypusWatch</a>
+        <a href="https://www.sunshinevalleygazette.com.au/blog/eyes-on-the-creek-platytracker-nambour-maleny">Local Article on PlatyTracker</a>
+      </div>
+    </div>
+
+    <div class="tab-content" id="controls" data-tabcontent style="display:none">
+      <h3 style="margin-top:0">Controls</h3>
+
+      <div class="controls">
+        <div class="control-row">
+          <input type="checkbox" id="sidebarToggleZero" checked>
+          <label for="sidebarToggleZero">Click here to remove 0 counts</label>
+        </div>
+
+        <div class="control-row" style="margin-top:8px;">
+          <label style="font-size:13px;color:var(--muted)">Base layer</label>
+        </div>
+        <div class="control-row">
+          <select id="baseSelect" style="width:100%;padding:8px;border-radius:6px;border:1px solid #e6e6e6;">
+            <option value="sat">Satellite</option>
+            <option value="street">Street Map</option>
+          </select>
+        </div>
+
+        <div style="margin-top:14px;font-size:13px;color:var(--muted)">
+                  </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Map -->
+  <main id="map" role="application" aria-label="Map container"></main>
+
+</div>
+
+<!-- Collapse button always visible -->
+<button id="collapseBtn" aria-expanded="true" title="Collapse sidebar">‹</button>
+
+<!-- Intro modal -->
+<div id="introModal" aria-hidden="false">
+  <div id="introCard" role="dialog" aria-modal="true" aria-label="Introduction">
+    <button class="close" id="closeIntro" title="Close">✖</button>
+
+
+    <div style="display:flex; justify-content:center; gap:20px; margin-bottom:15px;">
+    <img src="https://raw.githubusercontent.com/Ethann-5/Frog_Map_Assets/main/Images/Logos/ECO_Logo.jpg" style="height:60px;">
+    <img src="https://raw.githubusercontent.com/Ethann-5/Frog_Map_Assets/main/Images/Logos/SCC_Logo.png" style="height:60px;">
+  </div>
+
+    <div class="intro-body">
+      <h2>Welcome to the PlatyTracker Interactive Map</h2>
+      <p>
+        This map is desigened to highlight the ongoing PlatyTracker project by Ecollaboration, a volunteer project that is the first of it's kind in the Sunshine coast.</p>
+      <p>
+       Each point highlights a survey conducted by a volunteer, navitgate to the side bar on the left to find useful links and tools to better understand this data.
+      </p>
+<p>
+       A special thank you to the Sunshine Coast Council, land holders and all the volunteers who have helped with this project.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet + PapaParse -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+
+  // MAP SETUP
+  const map = L.map('map', {
+    center: [-26.58,153.09],
+    zoom: 11,
+    scrollWheelZoom: true,
+    dragging: true,
+    tap: true
+  });
+
+
+
+  const sat = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: '&copy; Esri' }
+  );
+
+  const street = L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { attribution: '&copy; OpenStreetMap contributors' }
+  );
+
+  sat.addTo(map);
+
+  map.attributionControl.addAttribution(' | Developed by <a href="https://www.linkedin.com/in/ethan-norris-/" target="_blank" style="color:#0077cc; font-weight:600; text-decoration:none;">Ethan Norris</a>');
+
+  // LAYERS
+  const zeroLayer = L.layerGroup().addTo(map);
+  const otherLayer = L.layerGroup().addTo(map);
+
+  const LAT = 'lat';
+  const LON = 'lon';
+  const COUNT = 'Number of Platypus';
+
+  function getColour(count){
+    if(count === 0) return '#ff4d4d';
+    if(count === 1) return '#90EE90';
+    if(count === 2) return '#00b300';
+    return '#006400';
+  }
+
+  // LOAD CSV
+  Papa.parse('https://raw.githubusercontent.com/Ethann-5/Platypus_Assets/main/platy_2.csv', {
+    download: true,
+    header: true,
+    complete: function(results){
+      results.data.forEach(function(row){
+        const lat = parseFloat(row[LAT]);
+        const lon = parseFloat(row[LON]);
+        const count = parseInt(row[COUNT]);
+
+        if(isNaN(lat) || isNaN(lon) || isNaN(count)) return;
+
+        const marker = L.circleMarker([lat, lon], {
+          radius: 7,
+          fillColor: getColour(count),
+          color: '#000',
+          weight: 1.8,
+          fillOpacity: 0.95
+        });
+
+        marker.bindPopup(`<div style="font-family:Poppins, sans-serif; font-size:15px;"><b>Platypus Count:</b> ${count}</div>`);
+
+        if(count === 0){
+          zeroLayer.addLayer(marker);
+        } else {
+          otherLayer.addLayer(marker);
+        }
+      });
+
+
+      const allLayers = L.featureGroup([...zeroLayer.getLayers(), ...otherLayer.getLayers()]);
+      if(allLayers.getLayers().length > 0){
+        try{ map.fitBounds(allLayers.getBounds(), {padding:[40,40]}); }catch(e){}
+      }
+    }
+  });
+
+  // SIDEBAR CONTROLS
+  const sidebarToggleZero = document.getElementById('sidebarToggleZero');
+  if(sidebarToggleZero){
+    sidebarToggleZero.addEventListener('change', function(){
+      if(this.checked){
+        if(!map.hasLayer(zeroLayer)) map.addLayer(zeroLayer);
+      } else {
+        if(map.hasLayer(zeroLayer)) map.removeLayer(zeroLayer);
+      }
+    });
+  }
+
+  // TABS
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('[data-tabcontent]');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', function(){
+      tabButtons.forEach(b => b.classList.remove('active'));
+      tabButtons.forEach(b => b.setAttribute('aria-selected','false'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected','true');
+
+      const tab = btn.getAttribute('data-tab');
+      tabContents.forEach(tc => {
+        tc.style.display = (tc.id === tab) ? '' : 'none';
+      });
+    });
+  });
+
+   // ---------------- INTRO MODAL ----------------
+  const introModal = document.getElementById('introModal');
+  const closeIntro = document.getElementById('closeIntro');
+  closeIntro.addEventListener('click', function(){
+    introModal.style.display = 'none';
+  });
+
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      if(introModal && introModal.style.display !== 'none'){
+        introModal.style.display = 'none';
+      }
+    }
+  });
+
+
+  // LEGEND
+  const legend = L.control({ position: 'bottomright' });
+  legend.onAdd = function(){
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = `<div class="legend-title">Number of Platypus Spotted</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#ff4d4d"></div><div>0</div></div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#90EE90"></div><div>1</div></div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#00b300"></div><div>2</div></div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#006400"></div><div>3+</div></div>`;
+    return div;
+  };
+  legend.addTo(map);
+
+  // COLLAPSE BUTTON BEHAVIOUR
+  const sidebar = document.getElementById('sidebar');
+  const app = document.getElementById('app');
+  const collapseBtn = document.getElementById('collapseBtn');
+
+  function setCollapseButtonPosition(expanded){
+    if(expanded){
+      collapseBtn.classList.add('expanded');
+      collapseBtn.style.left = `calc(var(--sidebar-width) - 28px)`;
+      collapseBtn.textContent = '‹';
+      collapseBtn.setAttribute('aria-expanded','true');
+    } else {
+      collapseBtn.classList.remove('expanded');
+      collapseBtn.style.left = `var(--collapsed-left)`;
+      collapseBtn.textContent = '›';
+      collapseBtn.setAttribute('aria-expanded','false');
+    }
+  }
+
+  // restore saved state
+  const saved = localStorage.getItem('platy_sidebar_collapsed');
+  const startCollapsed = saved === 'true';
+  if(startCollapsed){
+    sidebar.classList.add('collapsed');
+    app.classList.add('collapsed');
+  }
+  setCollapseButtonPosition(!startCollapsed);
+
+  collapseBtn.addEventListener('click', function () {
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    app.classList.toggle('collapsed', isCollapsed);
+    localStorage.setItem('platy_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+    setCollapseButtonPosition(!isCollapsed);
+
+    const onTransitionEnd = (e) => {
+      if (e.propertyName === 'width' || e.propertyName === 'opacity') {
+        if (map && map.invalidateSize) map.invalidateSize();
+        sidebar.removeEventListener('transitionend', onTransitionEnd);
+      }
+    };
+    sidebar.addEventListener('transitionend', onTransitionEnd);
+  });
+
+  
+  window.addEventListener('resize', () => {
+    const collapsed = sidebar.classList.contains('collapsed');
+    setCollapseButtonPosition(!collapsed);
+    if (map && map.invalidateSize) map.invalidateSize();
+  });
+
+  // ensure map resizes when sidebar content changes
+  const observer = new ResizeObserver(() => { if (map && map.invalidateSize) map.invalidateSize(); });
+  observer.observe(sidebar);
+
+});
+</script>
+</body>
+</html>
