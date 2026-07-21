@@ -440,7 +440,6 @@ document.addEventListener('DOMContentLoaded', function(){
   const LAT = 'lat';
   const LON = 'lon';
   const COUNT = 'Number of Platypus';
-  const DATE = 'Date';
   const TEMP = 'Current Air Temperature (°C)';
   const RAIN = 'Rainfall Last 24 Hours'
 
@@ -460,7 +459,6 @@ document.addEventListener('DOMContentLoaded', function(){
         const lat = parseFloat(row[LAT]);
         const lon = parseFloat(row[LON]);
         const count = parseInt(row[COUNT]);
-         const date = row[DATE];
          const temp = parseInt(row[TEMP]);
          const rain = parseInt(row[RAIN]);
 
@@ -477,7 +475,6 @@ document.addEventListener('DOMContentLoaded', function(){
     marker.bindPopup(`
     <div style="font-family:Poppins,sans-serif;font-size:15px;">
     <b>Platypus Count:</b> ${count}<br>
-    <b>Date:</b> ${date}<br>
     <b>Air Temperature (°C):</b> ${temp}<br>
     <b>Rainfall Last 24 hrs:</b> ${rain}
     </div>`);
