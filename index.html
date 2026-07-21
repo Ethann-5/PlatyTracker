@@ -440,6 +440,9 @@ document.addEventListener('DOMContentLoaded', function(){
   const LAT = 'lat';
   const LON = 'lon';
   const COUNT = 'Number of Platypus';
+  const DATE = 'Date';
+  const TEMP = 'Current Air Temperature (°C)';
+  const RAIN = 'Rainfall Last 24 Hours'
 
   function getColour(count){
     if(count === 0) return '#ff4d4d';
@@ -457,8 +460,11 @@ document.addEventListener('DOMContentLoaded', function(){
         const lat = parseFloat(row[LAT]);
         const lon = parseFloat(row[LON]);
         const count = parseInt(row[COUNT]);
+         const date = parseInt(row[DATE]);
+         const temp = parseInt(row[TEMP]);
+         const rain = parseInt(row[RAIN]);
 
-        if(isNaN(lat) || isNaN(lon) || isNaN(count)) return;
+        if(isNaN(lat) || isNaN(lon) || isNaN(count)|| isNaN(date)|| isNaN(temo)|| isNaN(rain)) return;
 
         const marker = L.circleMarker([lat, lon], {
           radius: 7,
@@ -469,8 +475,11 @@ document.addEventListener('DOMContentLoaded', function(){
         });
 
         marker.bindPopup(`<div style="font-family:Poppins, sans-serif; font-size:15px;">
-        <b>Platypus Count:</b> ${count}</div>,
-         <b>Date:</b> ${Date}</div>`);
+        <b>Platypus Count:</b> ${count}</div>
+        <b>Date:</b> ${date}</div>
+         <b>Air Temperature (°C):</b> ${temp}</div>
+          <b>Rainfall last 24hrs:</b> ${rain}</div>`);
+         
 
         if(count === 0){
           zeroLayer.addLayer(marker);
