@@ -437,9 +437,13 @@ document.addEventListener('DOMContentLoaded', function(){
   const zeroLayer = L.layerGroup().addTo(map);
   const otherLayer = L.layerGroup().addTo(map);
 
-  const LAT = 'lat';
-  const LON = 'lon';
-  const COUNT = 'Number of Platypus';
+  	const LAT = 'lat';
+ 	 const LON = 'lon';
+  	const COUNT = 'Number of Platypus';
+	const DATE = "Date";
+	const TEMP = "Current Air Temperature";
+	const RAIN = "Rainfall Last 24 Hours";
+	
 
   function getColour(count){
     if(count === 0) return '#ff4d4d';
@@ -457,6 +461,10 @@ document.addEventListener('DOMContentLoaded', function(){
         const lat = parseFloat(row[LAT]);
         const lon = parseFloat(row[LON]);
         const count = parseInt(row[COUNT]);
+	const date = row[DATE];
+	const temp = row[TEMP];
+	const rain = row[RAIN];
+		
 
         if(isNaN(lat) || isNaN(lon) || isNaN(count)) return;
 
@@ -468,8 +476,49 @@ document.addEventListener('DOMContentLoaded', function(){
           fillOpacity: 0.95
         });
 
-        marker.bindPopup(`<div style="font-family:Poppins, sans-serif; font-size:15px;"><b>Platypus Count:</b> ${count}</div>`);
+        marker.bindPopup(`
+<div style="font-family:Poppins, sans-serif; min-width:240px;">
 
+<h3 style="
+margin:0 0 10px 0;
+font-size:18px;
+font-weight:600;
+color:#006400;
+">
+Platypus Survey
+</h3>
+
+<table style="
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+">
+
+<tr>
+<td><b>Platypus Count</b></td>
+<td>${count}</td>
+</tr>
+
+<tr>
+<td><b>Date</b></td>
+<td>${date}</td>
+</tr>
+
+<tr>
+<td><b>Air Temperature</b></td>
+<td>${temp}°C</td>
+</tr>
+
+<tr>
+<td><b>Rainfall Last 24hrs</b></td>
+<td>${rain}</td>
+</tr>
+
+
+</table>
+
+</div>
+`);
         if(count === 0){
           zeroLayer.addLayer(marker);
         } else {
@@ -603,4 +652,5 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 </body>
 </html>
+
 
