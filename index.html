@@ -322,10 +322,13 @@
     <div class="tab-content" id="about" data-tabcontent>
       <h3 style="margin-top:0">About</h3>
       <p style="color:var(--muted);font-size:14px">
-        PlatyTracker aims to better understand the distribution and quantity of platypus within the Sunshine coast region, built off of the work of many volunteers who spend their free time surveying sites along critical waterways. 
+        PlatyTracker contributes to improved data quality of platypus abundance in the Great Sunshine Coast Region in order to;
+        -Increase understanding of habitat range to support conservation methods
+        -Engage local residents to become custodians of their local freshwater systems
+        -Advocate for both an upgrade in conservation status and the banning of opera house yabby traps in Queensland waters where platypus are present
       </p>
       <p style="color:var(--muted);font-size:14px">
-        This information assists with ongoing conservation efforts within the region
+      This program is mostly a self-funded initiative of Ecollaboration with some additional support from Sunshine Coast Council & Bendigo Bank Woombye
       </p>
     </div>
 
@@ -333,6 +336,7 @@
       <h3 style="margin-top:0">Useful links</h3>
       <div class="links-list">
         <a href="https://www.ecollaboration.org.au" target="_blank" rel="noopener">ECOllaboration</a>
+         <a href="https://ecollaboration.org.au/platytracker" target="_blank" rel="noopener">PlatyTracker | ECOllaboration</a>
         <a href="https://ethann-5.github.io/Frog-Survey-Map/" target="_blank" rel="noopener">Frog Survey Map</a>
         <a href="https://watergum.org/platypuswatch/" target="_blank" rel="noopener">Watergum PlatypusWatch</a>
         <a href="https://www.sunshinevalleygazette.com.au/blog/eyes-on-the-creek-platytracker-nambour-maleny">Local Article on PlatyTracker</a>
@@ -532,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function(){
   const legend = L.control({ position: 'bottomright' });
   legend.onAdd = function(){
     const div = L.DomUtil.create('div', 'legend');
-    div.innerHTML = `<div class="legend-title">Number of Platypus Spotted</div>
+    div.innerHTML = `<div class="legend-title">Number of Platypus Recorded</div>
       <div class="legend-row"><div class="legend-swatch" style="background:#ff4d4d"></div><div>0</div></div>
       <div class="legend-row"><div class="legend-swatch" style="background:#90EE90"></div><div>1</div></div>
       <div class="legend-row"><div class="legend-swatch" style="background:#00b300"></div><div>2</div></div>
