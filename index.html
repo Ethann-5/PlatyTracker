@@ -468,7 +468,9 @@ document.addEventListener('DOMContentLoaded', function(){
           fillOpacity: 0.95
         });
 
-        marker.bindPopup(`<div style="font-family:Poppins, sans-serif; font-size:15px;"><b>Platypus Count:</b> ${count}</div>`);
+        marker.bindPopup(`<div style="font-family:Poppins, sans-serif; font-size:15px;">
+        <b>Platypus Count:</b> ${count}</div>,
+         <b>Date:</b> ${Date}</div>`);
 
         if(count === 0){
           zeroLayer.addLayer(marker);
