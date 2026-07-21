@@ -460,11 +460,11 @@ document.addEventListener('DOMContentLoaded', function(){
         const lat = parseFloat(row[LAT]);
         const lon = parseFloat(row[LON]);
         const count = parseInt(row[COUNT]);
-         const date = parseInt(row[DATE]);
+         const date = row[DATE];
          const temp = parseInt(row[TEMP]);
          const rain = parseInt(row[RAIN]);
 
-        if(isNaN(lat) || isNaN(lon) || isNaN(count)|| isNaN(date)|| isNaN(temo)|| isNaN(rain)) return;
+        if(isNaN(lat) || isNaN(lon) || isNaN(count)|| isNaN(temp)|| isNaN(rain)) return;
 
         const marker = L.circleMarker([lat, lon], {
           radius: 7,
@@ -474,11 +474,13 @@ document.addEventListener('DOMContentLoaded', function(){
           fillOpacity: 0.95
         });
 
-        marker.bindPopup(`<div style="font-family:Poppins, sans-serif; font-size:15px;">
-        <b>Platypus Count:</b> ${count}</div>
-        <b>Date:</b> ${date}</div>
-         <b>Air Temperature (°C):</b> ${temp}</div>
-          <b>Rainfall last 24hrs:</b> ${rain}</div>`);
+    marker.bindPopup(`
+    <div style="font-family:Poppins,sans-serif;font-size:15px;">
+    <b>Platypus Count:</b> ${count}<br>
+    <b>Date:</b> ${date}<br>
+    <b>Air Temperature (°C):</b> ${temp}<br>
+    <b>Rainfall Last 24 hrs:</b> ${rain}
+    </div>`);
          
 
         if(count === 0){
