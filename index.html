@@ -433,15 +433,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
   map.attributionControl.addAttribution(' | Developed by <a href="https://www.linkedin.com/in/ethan-norris-/" target="_blank" style="color:#0077cc; font-weight:600; text-decoration:none;">Ethan Norris</a>');
 
-  // LAYERS
+ // LAYERS
   const zeroLayer = L.layerGroup().addTo(map);
   const otherLayer = L.layerGroup().addTo(map);
 
   const LAT = 'lat';
   const LON = 'lon';
   const COUNT = 'Number of Platypus';
-  const TEMP = 'Current Air Temperature (°C)';
-  const RAIN = 'Rainfall Last 24 Hours'
 
   function getColour(count){
     if(count === 0) return '#ff4d4d';
@@ -459,10 +457,8 @@ document.addEventListener('DOMContentLoaded', function(){
         const lat = parseFloat(row[LAT]);
         const lon = parseFloat(row[LON]);
         const count = parseInt(row[COUNT]);
-         const temp = parseInt(row[TEMP]);
-         const rain = parseInt(row[RAIN]);
 
-        if(isNaN(lat) || isNaN(lon) || isNaN(count)|| isNaN(temp)|| isNaN(rain)) return;
+        if(isNaN(lat) || isNaN(lon) || isNaN(count)) return;
 
         const marker = L.circleMarker([lat, lon], {
           radius: 7,
@@ -472,13 +468,7 @@ document.addEventListener('DOMContentLoaded', function(){
           fillOpacity: 0.95
         });
 
-    marker.bindPopup(`
-    <div style="font-family:Poppins,sans-serif;font-size:15px;">
-    <b>Platypus Count:</b> ${count}<br>
-    <b>Air Temperature (°C):</b> ${temp}<br>
-    <b>Rainfall Last 24 hrs:</b> ${rain}
-    </div>`);
-         
+        marker.bindPopup(`<div style="font-family:Poppins, sans-serif; font-size:15px;"><b>Platypus Count:</b> ${count}</div>`);
 
         if(count === 0){
           zeroLayer.addLayer(marker);
@@ -487,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
       });
 
-
+      // fit bounds
       const allLayers = L.featureGroup([...zeroLayer.getLayers(), ...otherLayer.getLayers()]);
       if(allLayers.getLayers().length > 0){
         try{ map.fitBounds(allLayers.getBounds(), {padding:[40,40]}); }catch(e){}
@@ -531,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function(){
     introModal.style.display = 'none';
   });
 
-
+  // allow closing modal with Escape
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape'){
       if(introModal && introModal.style.display !== 'none'){
@@ -545,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function(){
   const legend = L.control({ position: 'bottomright' });
   legend.onAdd = function(){
     const div = L.DomUtil.create('div', 'legend');
-    div.innerHTML = `<div class="legend-title">Number of Platypus Recorded</div>
+    div.innerHTML = `<div class="legend-title">Number of Platypus Spotted</div>
       <div class="legend-row"><div class="legend-swatch" style="background:#ff4d4d"></div><div>0</div></div>
       <div class="legend-row"><div class="legend-swatch" style="background:#90EE90"></div><div>1</div></div>
       <div class="legend-row"><div class="legend-swatch" style="background:#00b300"></div><div>2</div></div>
@@ -588,6 +578,7 @@ document.addEventListener('DOMContentLoaded', function(){
     localStorage.setItem('platy_sidebar_collapsed', isCollapsed ? 'true' : 'false');
     setCollapseButtonPosition(!isCollapsed);
 
+    // after transition, invalidate map size
     const onTransitionEnd = (e) => {
       if (e.propertyName === 'width' || e.propertyName === 'opacity') {
         if (map && map.invalidateSize) map.invalidateSize();
@@ -597,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function(){
     sidebar.addEventListener('transitionend', onTransitionEnd);
   });
 
-  
+  // reposition collapse button on window resize (keeps it near sidebar edge when expanded)
   window.addEventListener('resize', () => {
     const collapsed = sidebar.classList.contains('collapsed');
     setCollapseButtonPosition(!collapsed);
@@ -612,3 +603,4 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 </body>
 </html>
+
